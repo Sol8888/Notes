@@ -2,30 +2,28 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewModels="clr-namespace:Notes.ViewModels"
              x:Class="Notes.Views.AllNotesPage"
-             Title="Your Notes">
-    
+             Title="Your Notes"
+             NavigatedTo="ContentPage_NavigatedTo">
+
     <ContentPage.BindingContext>
         <viewModels:NotesViewModel />
     </ContentPage.BindingContext>
 
-    <!-- Add an item to the toolbar -->
+    <!-- Toolbar -->
     <ContentPage.ToolbarItems>
         <ToolbarItem Text="Add" Command="{Binding NewCommand}" IconImageSource="{FontImage Glyph='+', Color=Black, Size=22}" />
     </ContentPage.ToolbarItems>
 
-    <!-- Display notes in a list -->
+    <!-- Notes list -->
     <CollectionView x:Name="notesCollection"
                     ItemsSource="{Binding AllNotes}"
                     Margin="20"
                     SelectionMode="Single"
                     SelectionChangedCommand="{Binding SelectNoteCommand}"
                     SelectionChangedCommandParameter="{Binding Source={RelativeSource Self}, Path=SelectedItem}">
-        <!-- Designate how the collection of items are laid out -->
         <CollectionView.ItemsLayout>
             <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
         </CollectionView.ItemsLayout>
-
-        <!-- Define the appearance of each item in the list -->
         <CollectionView.ItemTemplate>
             <DataTemplate>
                 <StackLayout>
