@@ -66,8 +66,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Compile Update="Views\AboutPage.xaml.cs">
-	    <DependentUpon>AboutPage.xaml</DependentUpon>
+	  <Compile Update="Views\AboutPageSCSC.xaml.cs">
+	    <DependentUpon>AboutPageSCSC.xaml</DependentUpon>
 	  </Compile>
 	  <Compile Update="Views\AllNotesPagesc.xaml.cs">
 	    <DependentUpon>AllNotesPagesc.xaml</DependentUpon>
@@ -81,7 +81,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <MauiXaml Update="Views\AboutPage.xaml">
+	  <MauiXaml Update="Views\AboutPageSCSC.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>
 	  <MauiXaml Update="Views\AllNotesPageSC.xaml">
