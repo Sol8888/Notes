@@ -1,8 +1,8 @@
 namespace Notes.Views;
 
-public partial class AllNotesPage : ContentPage
+public partial class AllNotesPageSC : ContentPage
 {
-    public AllNotesPage()
+    public AllNotesPageSC()
     {
         InitializeComponent();
     }
