@@ -1,62 +1,78 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CommunityToolkit.Mvvm.Input;
-using Notes.Models;
-using System.Collections.ObjectModel;
+﻿using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using System.Windows.Input;
 
 namespace Notes.ViewModels;
 
-internal class NotesViewModel : IQueryAttributable
+internal class NoteViewModel : ObservableObject, IQueryAttributable
 {
-    public ObservableCollection<ViewModels.NoteViewModel> AllNotes { get; }
-    public ICommand NewCommand { get; }
-    public ICommand SelectNoteCommand { get; }
+    private Models.Note _note;
 
-    public NotesViewModel()
+    public string Text
     {
-        AllNotes = new ObservableCollection<ViewModels.NoteViewModel>(Models.Note.LoadAll().Select(n => new NoteViewModel(n)));
-        NewCommand = new AsyncRelayCommand(NewNoteAsync);
-        SelectNoteCommand = new AsyncRelayCommand<ViewModels.NoteViewModel>(SelectNoteAsync);
+        get => _note.Text;
+        set
+        {
+            if (_note.Text != value)
+            {
+                _note.Text = value;
+                OnPropertyChanged();
+            }
+        }
     }
 
-    private async Task NewNoteAsync()
+    public DateTime Date => _note.Date;
+
+    public string Identifier => _note.Filename;
+
+    public ICommand SaveCommand { get; private set; }
+    public ICommand DeleteCommand { get; private set; }
+
+    public NoteViewModel()
     {
-        await Shell.Current.GoToAsync(nameof(Views.NotePage));
+        _note = new Models.Note();
+        SaveCommand = new AsyncRelayCommand(Save);
+        DeleteCommand = new AsyncRelayCommand(Delete);
     }
 
-    private async Task SelectNoteAsync(ViewModels.NoteViewModel note)
+    public NoteViewModel(Models.Note note)
     {
-        if (note != null)
-            await Shell.Current.GoToAsync($"{nameof(Views.NotePage)}?load={note.Identifier}");
+        _note = note;
+        SaveCommand = new AsyncRelayCommand(Save);
+        DeleteCommand = new AsyncRelayCommand(Delete);
+    }
+
+    private async Task Save()
+    {
+        _note.Date = DateTime.Now;
+        _note.Save();
+        await Shell.Current.GoToAsync($"..?saved={_note.Filename}");
+    }
+
+    private async Task Delete()
+    {
+        _note.Delete();
+        await Shell.Current.GoToAsync($"..?deleted={_note.Filename}");
     }
 
     void IQueryAttributable.ApplyQueryAttributes(IDictionary<string, object> query)
     {
-        if (query.ContainsKey("deleted"))
+        if (query.ContainsKey("load"))
         {
-            string noteId = query["deleted"].ToString();
-            NoteViewModel matchedNote = AllNotes.Where((n) => n.Identifier == noteId).FirstOrDefault();
-
-            // If note exists, delete it
-            if (matchedNote != null)
-                AllNotes.Remove(matchedNote);
+            _note = Models.Note.Load(query["load"].ToString());
+            RefreshProperties();
         }
-        else if (query.ContainsKey("saved"))
-        {
-            string noteId = query["saved"].ToString();
-            NoteViewModel matchedNote = AllNotes.Where((n) => n.Identifier == noteId).FirstOrDefault();
+    }
 
-            // If note is found, update it
-            if (matchedNote != null)
-                matchedNote.Reload();
+    public void Reload()
+    {
+        _note = Models.Note.Load(_note.Filename);
+        RefreshProperties();
+    }
 
-            // If note isn't found, it's new; add it.
-            else
-                AllNotes.Add(new NoteViewModel(Note.Load(noteId)));
-        }
+    private void RefreshProperties()
+    {
+        OnPropertyChanged(nameof(Text));
+        OnPropertyChanged(nameof(Date));
     }
 }
